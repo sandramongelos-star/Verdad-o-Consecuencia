@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#17122d">
+<title>Verdad o Consecuencia</title>
+<style>
+:root{--bg:#100d20;--panel:#1d1735;--panel2:#2a2148;--pink:#ff5da2;--cyan:#65e5df;--text:#fff9ff;--muted:#c6bddb}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at top,#38245d 0,#100d20 58%);font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:var(--text);display:flex;justify-content:center;padding:22px}
+main{width:min(720px,100%);align-self:center}.brand{text-align:center;margin-bottom:18px}.brand .emoji{font-size:44px}.brand h1{margin:5px 0;font-size:clamp(28px,6vw,42px);line-height:1.1}.brand p{margin:8px 0;color:var(--muted)}
+.card{background:linear-gradient(145deg,rgba(42,33,72,.97),rgba(29,23,53,.97));border:1px solid #594777;border-radius:24px;padding:clamp(20px,5vw,34px);box-shadow:0 20px 70px #0005}
+.hidden{display:none!important}.label{display:block;color:var(--muted);font-size:14px;margin:0 0 8px}
+input,textarea{font:inherit;width:100%;border:1px solid #655781;border-radius:13px;padding:14px;background:#130f25;color:white;outline:none}
+input:focus,textarea:focus{border-color:var(--cyan);box-shadow:0 0 0 3px #65e5df22}textarea{min-height:125px;resize:vertical}
+button{font:inherit;font-weight:750;border:0;border-radius:13px;padding:14px 18px;cursor:pointer;transition:transform .12s,opacity .12s}
+button:active{transform:scale(.98)}button:disabled{opacity:.55;cursor:wait}.primary{background:linear-gradient(100deg,var(--pink),#ff8a70);color:#240d25}.secondary{background:var(--cyan);color:#10262a}.quiet{background:#3b3154;color:white}.choice{width:100%;min-height:100px;text-align:left;background:#30264d;color:white;border:1px solid #665484;display:flex;align-items:center;gap:16px;margin-top:12px}.choice strong{display:block;font-size:21px}.choice small{display:block;color:var(--muted);font-weight:450;margin-top:3px}.choice .big{font-size:30px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.actions button{flex:1;min-width:140px}
+.progress{height:7px;border-radius:99px;background:#110d20;overflow:hidden;margin-bottom:20px}.progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--pink),var(--cyan));transition:width .25s}
+.topline{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:13px;margin-bottom:12px}.pill{border:1px solid #655781;border-radius:99px;padding:5px 10px}
+h2{font-size:25px;margin:8px 0 14px}.prompt{font-size:clamp(20px,4vw,27px);font-weight:750;line-height:1.25;margin:20px 0}
+.hint{color:var(--muted);font-size:13px;line-height:1.5}.status{margin-top:14px;padding:12px;border-radius:12px;background:#130f25;color:var(--muted);font-size:14px}.status.error{color:#ffb8c8;border:1px solid #8f3c63}.status.success{color:#a8fff0;border:1px solid #347e79}
+.filebox{border:1px dashed #796a99;padding:18px;border-radius:14px;background:#17122c;margin-top:14px}.filebox input{background:transparent;border:0;padding:8px 0}
+.consent{display:flex;align-items:flex-start;gap:10px;margin-top:14px;color:var(--muted);font-size:13px;line-height:1.45}.consent input{width:auto;margin-top:3px}
+footer{text-align:center;color:#a89dbd;font-size:12px;margin:16px 8px}
+</style>
+</head>
+<body><main>
+<header class="brand"><div class="emoji">🎲💥</div><h1>Verdad o Consecuencia</h1><p>Una ronda, una elección… ¡y que empiece el juego!</p></header>
+<section class="card" id="start">
+  <label class="label" for="player">¿Cómo te llamás, jugador/a?</label>
+  <input id="player" maxlength="70" placeholder="Escribí tu nombre" autocomplete="nickname">
+  <p class="hint">Jugá con buena onda. Podés pasar una pregunta o una consecuencia si no te sentís cómodo/a.</p>
+  <label class="consent"><input type="checkbox" id="consent"><span>Confirmo que quiero participar y que entiendo que mi respuesta o archivo se enviará por email a Sandra.mongelos@gmail.com.</span></label>
+  <div class="actions"><button class="primary" id="startBtn">¡Empezar! 🚀</button></div>
+  <div id="startStatus" class="status hidden"></div>
+</section>
+<section class="card hidden" id="game">
+  <div class="progress"><span id="progressBar"></span></div>
+  <div class="topline"><span id="playerLabel"></span><span class="pill" id="stepLabel">Ronda 1 de 10</span></div>
+  <div id="choose">
+    <h2>Elegí tu destino</h2><p class="hint">¿Te animás a decir la verdad o preferís una consecuencia?</p>
+    <button class="choice" id="truthBtn"><span class="big">💬</span><span><strong>Verdad</strong><small>Respondé con sinceridad</small></span></button>
+    <button class="choice" id="dareBtn"><span class="big">🎬</span><span><strong>Consecuencia</strong><small>Mandá una foto, audio o video</small></span></button>
+  </div>
+  <div id="truthPanel" class="hidden">
+    <span class="pill">💬 VERDAD</span><p class="prompt" id="truthQuestion"></p>
+    <label class="label" for="answer">Tu respuesta</label><textarea id="answer" maxlength="4000" placeholder="Escribí acá tu respuesta…"></textarea>
+    <div class="actions"><button class="quiet" id="backTruth">Volver</button><button class="primary" id="sendTruth">OK · Enviar respuesta</button></div>
+  </div>
+  <div id="darePanel" class="hidden">
+    <span class="pill">🎬 CONSECUENCIA</span><p class="prompt" id="darePrompt"></p>
+    <p class="hint">Elegí el archivo solicitado. Se adjuntará al email. Máximo 18 MB por archivo. No subas contenido íntimo ni material de otras personas sin su permiso.</p>
+    <div class="filebox"><label class="label" for="upload">Tu archivo (foto, audio, video o GIF)</label><input id="upload" type="file" accept="image/*,audio/*,video/*,.gif"></div>
+    <div class="actions"><button class="quiet" id="backDare">Volver</button><button class="primary" id="sendDare">OK · Enviar archivo</button></div>
+  </div>
+  <div id="gameStatus" class="status hidden" aria-live="polite"></div>
+  <div id="afterSend" class="actions hidden"><button class="secondary" id="nextBtn">Siguiente ronda ➜</button></div>
+</section>
+<section class="card hidden" id="done"><div style="font-size:48px;text-align:center">🏆</div><h2 style="text-align:center">¡Juego terminado!</h2><p style="text-align:center;color:var(--muted)">Gracias por jugar. ¡Que no se filtren los secretos! 🤫</p><div class="actions"><button class="primary" id="againBtn">Jugar otra vez</button></div></section>
+<footer>Participación voluntaria · Tus archivos se envían únicamente al correo indicado por el organizador.</footer>
+</main>
+<script>
+const truths = [
+"¿Qué desayunaste hoy?",
+"¿De qué color es la remera que tenés puesta?",
+"¿Usás calzoncillo o bóxer? (Podés pasar esta pregunta si preferís.)",
+"¿A dónde vas hoy o cuál es tu próximo destino?",
+"¿Cuál es tu película favorita?",
+"¿Cuándo fue la última vez que fuiste a misa?",
+"¿Cuál fue la última canción que escuchaste?",
+"¿Cuál es una comida que nunca te cansás de comer?",
+"¿Qué cosa te hace reír aunque estés de mal humor?",
+"¿Qué lugar te gustaría visitar y por qué?"
+];
+const dares = [
+{label:"Selfie con lentes de sol",accept:"image/*"},
+{label:"Audio de la última canción que escuchaste (tarareala o nombrala)",accept:"audio/*"},
+{label:"Video de la ruta o del camino (solo si estás detenido/a y en un lugar seguro)",accept:"video/*"},
+{label:"Foto con tu perro (o mascota)",accept:"image/*"},
+{label:"GIF de un beso",accept:"image/gif,image/*"}
+];
+let player="",round=0,usedTruth=new Set(),usedDare=new Set(),currentType="",currentPrompt="";
+const $=id=>document.getElementById(id);
+function status(msg,type=""){const el=$("gameStatus");el.textContent=msg;el.className="status "+type;el.classList.remove("hidden")}
+function showPanel(id){["choose","truthPanel","darePanel"].forEach(x=>$(x).classList.toggle("hidden",x!==id));$("gameStatus").classList.add("hidden");$("afterSend").classList.add("hidden")}
+function updateProgress(){$("stepLabel").textContent=`Ronda ${round+1} de 10`;$("progressBar").style.width=`${round/10*100}%`}
+function chooseRandom(arr,set){let available=arr.map((v,i)=>({v,i})).filter(x=>!set.has(x.i));if(!available.length){set.clear();available=arr.map((v,i)=>({v,i}))}const item=available[Math.floor(Math.random()*available.length)];set.add(item.i);return item.v}
+function begin(){player=$("player").value.trim();if(!player){$("startStatus").textContent="Escribí tu nombre para empezar.";$("startStatus").className="status error";$("startStatus").classList.remove("hidden");return}if(!$("consent").checked){$("startStatus").textContent="Confirmá que aceptás participar y enviar los datos por email.";$("startStatus").className="status error";$("startStatus").classList.remove("hidden");return}$("start").classList.add("hidden");$("game").classList.remove("hidden");$("playerLabel").textContent="Jugador/a: "+player;updateProgress()}
+function pick(type){currentType=type;if(type==="truth"){currentPrompt=chooseRandom(truths,usedTruth);$("truthQuestion").textContent=currentPrompt;$("answer").value="";showPanel("truthPanel")}else{const d=chooseRandom(dares,usedDare);currentPrompt=d.label;$("darePrompt").textContent=currentPrompt;$("upload").value="";showPanel("darePanel")}}
+async function send(payload,button){button.disabled=true;status("Enviando…");try{const res=await fetch("/api/send",{method:"POST",body:payload});const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data.error||"No se pudo enviar. Revisá la configuración del servidor.");status("¡Enviado a Sandra! Podés continuar.", "success");$("afterSend").classList.remove("hidden");$("choose").classList.add("hidden");$("truthPanel").classList.add("hidden");$("darePanel").classList.add("hidden");}catch(e){status(e.message+" Si el sitio aún no está configurado con Resend, el email no se enviará.","error")}finally{button.disabled=false}}
+$("startBtn").onclick=begin;$("truthBtn").onclick=()=>pick("truth");$("dareBtn").onclick=()=>pick("dare");
+$("backTruth").onclick=()=>showPanel("choose");$("backDare").onclick=()=>showPanel("choose");
+$("sendTruth").onclick=()=>{const answer=$("answer").value.trim();if(!answer){status("Escribí tu respuesta antes de enviar.","error");return}const f=new FormData();f.append("player",player);f.append("type","Verdad");f.append("prompt",currentPrompt);f.append("answer",answer);f.append("round",String(round+1));send(f,$("sendTruth"))};
+$("sendDare").onclick=()=>{const file=$("upload").files[0];if(!file){status("Seleccioná una foto, audio, video o GIF.","error");return}if(file.size>18*1024*1024){status("El archivo supera el límite de 18 MB. Elegí uno más pequeño.","error");return}const f=new FormData();f.append("player",player);f.append("type","Consecuencia");f.append("prompt",currentPrompt);f.append("round",String(round+1));f.append("file",file,file.name);send(f,$("sendDare"))};
+$("nextBtn").onclick=()=>{round++;if(round>=10){$("game").classList.add("hidden");$("done").classList.remove("hidden");return}updateProgress();showPanel("choose")};
+$("againBtn").onclick=()=>{round=0;usedTruth.clear();usedDare.clear();$("done").classList.add("hidden");$("start").classList.remove("hidden");$("player").value="";$("consent").checked=false;$("progressBar").style.width="0%";showPanel("choose")};
+</script></body></html>
